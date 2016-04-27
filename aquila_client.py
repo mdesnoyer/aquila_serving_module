@@ -204,7 +204,7 @@ def prep_aquila(image_file):
   # the images were read in with decode jpeg, which means they are
   # floats on the domain [0, 1). So let's take that into account.
   image = numpy.array(image)
-  image = image / 256.
+  # image = image / 256.
   return image
 
 
