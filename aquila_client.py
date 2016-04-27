@@ -179,14 +179,16 @@ def _pad_to_asp(img, asp):
     left = (nw - ow) / 2
     upper = 0
     newsize = (nw, oh)
+    nimg = Image.new(img.mode, newsize)
+    nimg.paste(img, box=(left, upper))
   elif asp < oasp:
     # the image is too short. Pad out height.
     nh = int(ow / asp)
     left = 0
     upper = (nh - oh) / 2
     newsize = (ow, nh)
-  nimg = Image.new(img.mode, newsize)
-  nimg.paste(img, box=(left, upper))
+    nimg = Image.new(img.mode, newsize)
+    nimg.paste(img, box=(left, upper))
   return nimg
 
 
