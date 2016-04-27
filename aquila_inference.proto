@@ -11,7 +11,7 @@ message AquilaRequest {
 
 message AquilaResponse {
   // Scores of the valence for the images
-  repeated float valence = 1;
+  float valence = 1;
 };
 
 service AquilaService {
