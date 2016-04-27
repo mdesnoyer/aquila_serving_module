@@ -246,7 +246,7 @@ def do_inference(hostport, concurrency, listfile):
         print exception
       else:
         result = result_future.result()
-        inf_res = [filename, result.valence]
+        inf_res = [filename, result.valence[0]]
         inference_results.append(inf_res)
       result_status['done'] += 1
       result_status['active'] -= 1
@@ -287,7 +287,7 @@ def main(_):
       return
     request.image_data = image.extend(image_array.flatten().tolist())
     result = stub.Regress(request, 10.0)  # 10 secs timeout
-    print '%s Inference: %f' % (FLAGS.image, result.valence)
+    print '%s Inference: %f' % (FLAGS.image, result.valence[0])
   elif FLAGS.image_list_file:
     inference_results = do_inference(FLAGS.server,
                                      FLAGS.concurrency,
