@@ -15,7 +15,7 @@ import numpy
 import tensorflow as tf
 from tensorflow.python.platform.logging import warn
 
-from tensorflow_serving.aquila import aquila_inference_pb2
+from tensorflow_serving.aquila_serving_module import aquila_inference_pb2
 
 
 tf.app.flags.DEFINE_integer('concurrency', 1,

@@ -162,22 +162,21 @@ protoc -I ./ --python_out=. --grpc_out=. --plugin=protoc-gen-grpc=`which grpc_py
 cd /data/aquila_serving
 # build the whole source tree - this will take a bit
 bazel --output_base=/data/.cache/bazel/_bazel_$USER build -c opt --config=cuda tensorflow_serving/...
-​bazel --output_base=/data/.cache/bazel/_bazel_$USER build tensorflow_serving/...
+
 ​
-# convert tensorflow into a pip repo
-cd tensorflow
-bazel --output_base=/data/.cache/bazel/_bazel_$USER build -c opt --config=cuda //tensorflow/tools/pip_package:build_pip_package
-bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
-# install it with pip for some reason
+# # convert tensorflow into a pip repo
+# cd tensorflow
+# bazel --output_base=/data/.cache/bazel/_bazel_$USER build -c opt --config=cuda //tensorflow/tools/pip_package:build_pip_package
+# bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
+# # install it with pip for some reason
 ​
 # this filename may change.
 sudo pip install /tmp/tensorflow_pkg/tensorflow-0.7.1-py2-none-linux_x86_64.whl
 ​
-# clone inception
-curl -O http://download.tensorflow.org/models/image/imagenet/inception-v3-2016-03-01.tar.gz
-tar xzf inception-v3-2016-03-01.tar.gz
-# bazel-bin/tensorflow_serving/example/inception_export --checkpoint_dir=inception-v3 --export_dir=inception-export
-bazel-bin/tensorflow_serving/aquila_serving_module/aquila_export --checkpoint_dir=/data/aquila_snaps_lowreg --export_dir=quila-export
+# # clone inception
+# curl -O http://download.tensorflow.org/models/image/imagenet/inception-v3-2016-03-01.tar.gz
+# tar xzf inception-v3-2016-03-01.tar.gz
+bazel-bin/tensorflow_serving/aquila_serving_module/aquila_export --checkpoint_dir=/data/aquila_snaps_lowreg --export_dir=aquila-export
 ​
 # aquila:
 # real  0m13.621s
@@ -185,75 +184,6 @@ bazel-bin/tensorflow_serving/aquila_serving_module/aquila_export --checkpoint_di
 # sys   0m0.161s
 ​
 # this assumes you have an images directory with a text file called batch in it.
-bazel-bin/tensorflow_serving/example/inception_inference --port=9000 inception-export &> inception_log &
-bazel-bin/tensorflow_serving/example/inception_client --server=localhost:9000 --prep_method=resize --concurrency=10 --image_list_file=/data/images/batch
-​
-​
-# let's test it with mnist
-bazel-bin/tensorflow_serving/example/mnist_inference_2 --port=9000 /tmp/monitored &> mnist_log &
-bazel-bin/tensorflow_serving/example/mnist_client --num_tests=1000 --server=localhost:9000 --concurrency=10
-​
-​
-# test image;
-# https://raw.githubusercontent.com/google/inception/master/dog.jpg
-​
-# (it's a dalmation)
-# the correct classification should be:
-9.371209 : dalmatian, coach dog, carriage dog
-3.357578 : ocarina, sweet potato
-3.080092 : kuvasz
-2.961285 : Bernese mountain dog
-2.452607 : basketball
-​
-# real    0m8.205s
-# user    0m0.928s
-# sys     0m0.111s
-​
-# %s Inference:
-#       32630.767578 : shopping basket
-#       31133.976562 : guillotine
-#       30024.972656 : daisy
-#       29822.853516 : corn
-#       29509.896484 : Yorkshire terrier
-# %s Inference:
-#         32630.767578 : shopping basket
-#         31133.976562 : guillotine
-#         30024.972656 : daisy
-#         29822.853516 : corn
-#         29509.896484 : Yorkshire terrier
-# %s Inference:
-#         32630.767578 : shopping basket
-#         31133.976562 : guillotine
-#         30024.972656 : daisy
-#         29822.853516 : corn
-#         29509.896484 : Yorkshire terrier
-​
-​
-# getting closer!
-​
-# /data/images/dog.jpg Inference:
-#         7.105422 : American Staffordshire terrier, Staffordshire terrier, American pit bull terrier, pit bull terrier
-#         6.657583 : Labrador retriever
-#         6.477783 : bull mastiff
-#         6.417630 : Great Dane
-#         5.608005 : boxer
-# /data/images/dog1.jpg Inference:
-#         7.105422 : American Staffordshire terrier, Staffordshire terrier, American pit bull terrier, pit bull terrier
-#         6.657583 : Labrador retriever
-#         6.477783 : bull mastiff
-#         6.417630 : Great Dane
-#         5.608005 : boxer
-# /data/images/dog2.jpg Inference:
-#         7.105422 : American Staffordshire terrier, Staffordshire terrier, American pit bull terrier, pit bull terrier
-#         6.657583 : Labrador retriever
-#         6.477783 : bull mastiff
-#         6.417630 : Great Dane
-#         5.608005 : boxer
-# /data/images/dog3.jpg Inference:
-#         7.105422 : American Staffordshire terrier, Staffordshire terrier, American pit bull terrier, pit bull terrier
-#         6.657583 : Labrador retriever
-#         6.477783 : bull mastiff
-#         6.417630 : Great Dane
-#         5.608005 : boxer
-​
+bazel-bin/tensorflow_serving/aquila_serving_module/aquila_inference --port=9000 aquila-export &> aquila_log &
+bazel-bin/tensorflow_serving/aquila_serving_module/aquila_client --server=localhost:9000 --prep_method=padresize --concurrency=10 --image_list_file=/data/targ/images
 ​
