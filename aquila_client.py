@@ -277,17 +277,6 @@ def do_inference(hostport, concurrency, listfile):
 
 def main(_):
   host, port = FLAGS.server.split(':')
-  # Create label->synset mapping
-  synsets = []
-  with open(SYNSET_FILE) as f:
-    synsets = f.read().splitlines()
-  # Create synset->metadata mapping
-  texts = {}
-  with open(METADATA_FILE) as f:
-    for line in f.read().splitlines():
-      parts = line.split('\t')
-      assert len(parts) == 2
-      texts[parts[0]] = parts[1]
   if FLAGS.image:
     # Load and preprocess the image.
     channel = implementations.insecure_channel(host, int(port))
