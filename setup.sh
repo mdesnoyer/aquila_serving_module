@@ -185,5 +185,5 @@ bazel-bin/tensorflow_serving/aquila_serving_module/aquila_export --checkpoint_di
 ​
 # this assumes you have an images directory with a text file called batch in it.
 bazel-bin/tensorflow_serving/aquila_serving_module/aquila_inference --port=9000 aquila-export &> aquila_log &
-bazel-bin/tensorflow_serving/aquila_serving_module/aquila_client --server=localhost:9000 --prep_method=padresize --concurrency=10 --image_list_file=/data/targ/images
+bazel-bin/tensorflow_serving/aquila_serving_module/aquila_client --server=localhost:9000 --prep_method=padresize --concurrency=5 --image_list_file=/data/targ/images
 ​
