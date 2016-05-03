@@ -29,9 +29,9 @@
 #include "tensorflow/core/platform/init_main.h"
 #include "tensorflow/core/platform/types.h"
 #include "tensorflow/core/util/command_line_flags.h"
+#include "tensorflow_serving/batching/basic_batch_scheduler.h"
 #include "tensorflow_serving/batching/batch_scheduler.h"
 #include "tensorflow_serving/batching/batch_scheduler_retrier.h"
-#include "tensorflow_serving/batching/streaming_batch_scheduler.h"
 #include "tensorflow_serving/core/manager.h"
 #include "tensorflow_serving/core/servable_handle.h"
 #include "tensorflow_serving/core/servable_id.h"
@@ -193,14 +193,15 @@ AquilaServiceImpl::AquilaServiceImpl(
   // Use the default batch-size, timeout and thread options.  In general
   // the numbers are extremely performance critical and should be tuned based
   // specific graph structure and usage.
-  tensorflow::serving::StreamingBatchScheduler<Task>::Options scheduler_options;
+  tensorflow::serving::BasicBatchScheduler<Task>::Options scheduler_options;
   scheduler_options.thread_pool_name = "aquila_service_batch_threads";
   scheduler_options.batch_timeout_micros = 1000 * 1000;  // 1 second
   scheduler_options.num_batch_threads = 4;
   scheduler_options.max_batch_size = 22;
+  scheduler_options.max_enqueued_batches = 100; // let's set it very high for now.
   tensorflow::serving::BatchSchedulerRetrier<Task>::Options retry_options;
   // Retain the default retry options.
-  TF_CHECK_OK(tensorflow::serving::CreateRetryingStreamingBatchScheduler<Task>(
+  TF_CHECK_OK(tensorflow::serving::CreateRetryingBasicBatchScheduler<Task>(
       scheduler_options, retry_options,
       [this](std::unique_ptr<tensorflow::serving::Batch<Task>> batch) {
         this->DoRegressInBatch(std::move(batch));
