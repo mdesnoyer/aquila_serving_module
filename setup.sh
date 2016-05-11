@@ -13,11 +13,11 @@ wget http://developer.download.nvidia.com/compute/cuda/7_0/Prod/local_installers
 # (2) scp cudnn over
 # scp -i ~/.ssh/nick_gpu_instance.pem <filename> ubuntu@<server_ip>:/data
 # e.g.,
-# scp -i ~/.ssh/nick_gpu_instance.pem /Users/davidlea/Downloads/cudnn-6.5-linux-x64-v2.tgz ubuntu@10.0.83.215:/data
+# scp -i ~/.ssh/nick_gpu_instance.pem ~/Downloads/cudnn-6.5-linux-x64-v2.tgz ubuntu@10.0.83.215:/data
 # (3) make the tmp directory point to /data
 # this helps deal with the ABSOFUCKINGLUTELY COLOSSAL space requirements
 # of bazel and tensorflow
-sudo mkdir /data/tmp && sudo chmod 777 /data/tmp && sudo rm -rf /tmp && sudo ln -s /data/tmp /tmp
+# sudo mkdir /data/tmp && sudo chmod 777 /data/tmp && sudo rm -rf /tmp && sudo ln -s /data/tmp /tmp
 ​
 # ========================================================================================================= #
 # DEPENDENCIES												
@@ -53,8 +53,7 @@ sudo cp output/bazel /usr/bin
 # NOTES:
 # this is only necessary if you will be bazel-build'ing new models, since you have to protoc their compilers, too.
 # while they instalL protocol buffers for you, you need protocol buffer compiler > 3.0.0 alpha so let's get that too (blarg)
-cd /data
-wget https://github.com/google/protobuf/releases/download/v3.0.0-beta-2/protobuf-python-3.0.0-beta-2.tar.gz
+cd /data && wget https://github.com/google/protobuf/releases/download/v3.0.0-beta-2/protobuf-python-3.0.0-beta-2.tar.gz
 tar xvzf protobuf-python-3.0.0-beta-2.tar.gz
 cd protobuf-3.0.0-beta-2 && ./configure && make -j8 && sudo make install
 
@@ -101,7 +100,8 @@ sudo ./cuda-linux64-rel-7.0.28-19326674.run # accept the EULA, accept the defaul
 # trasfer cuDNN over from elsewhere (you can't download it directly)
 cd /data && tar -xzf cudnn-6.5-linux-x64-v2.tgz 
 sudo cp cudnn-6.5-linux-x64-v2/libcudnn* /usr/local/cuda/lib64 && sudo cp cudnn-6.5-linux-x64-v2/cudnn.h /usr/local/cuda/include/
-​
+​sudo chmod a+r /usr/local/cuda/lib64/libcudnn*
+
 # OPTIONAL
 # To increase free space, remove cuda install file & nvidia_installers
 cd /data
@@ -110,14 +110,16 @@ rm -rfv nvidia_installers/
 ​
 # add CUDA stuff to your ~/.bashrc
 echo 'export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/cuda/lib64"' >> ~/.bashrc
-echo 'export CUDA_HOME=/usr/local/cuda' >> ~/.bashrc
 # it appears as thought the default install location is not in the LD Library path for whatever the fuck reason, so 
 # modify your bashrc again with:
 echo 'export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/lib"' >> ~/.bashrc
+
+echo 'export CUDA_HOME=/usr/local/cuda' >> ~/.bashrc
+
 echo 'export PATH="$PATH:$HOME/bin"' >> ~/.bashrc
 
-# add /data, too.
-echo 'export PYTHONPATH="$PYTHONPATH:/data"' >> ~/.bashrc
+# add /mnt/neon, too.
+echo 'export PYTHONPATH="$PYTHONPATH:/mnt/neon"' >> ~/.bashrc
 # then source it
 source ~/.bashrc
 ​
@@ -127,21 +129,21 @@ source ~/.bashrc
 # ========================================================================================================= #
 
 # clone aquila
-cd /data && git clone https://github.com/neon-lab/aquila.git
+cd /mnt/neon && git clone https://github.com/neon-lab/aquila.git && cd aquila && git checkout mod_for_serving && cd ..
 
 # install tensorflow / tensorflow serving
 # cd /data && git clone --recurse-submodules https://github.com/neon-lab/aquila_serving.git
-cd /data && git clone --recurse-submodules https://github.com/tensorflow/serving.git
+cd /mnt/neon && git clone --recurse-submodules https://github.com/tensorflow/serving.git
 
 # IMPORTANT:
-# >>>>> to the /data/serving/WORKSPACE
+# >>>>> to the /mnt/neon/serving/WORKSPACE
 # +++++ add:
 # local_repository(
 #   name = "aquila_model",
-#   path = "/data/aquila",
+#   path = "/mnt/neon/aquila",
 # )
 # Tensorflow Serving will fail to build on AWS w/ CUDA without editing
-# >>>>>> to ./tensorflow/third_party/gpus/crosstool/CROSSTOOL
+# >>>>>> to /mnt/neon/serving/tensorflow/third_party/gpus/crosstool/CROSSTOOL
 # ++++++ add the line:
 # cxx_builtin_include_directory: "/usr/local/cuda-7.0/include"
 
@@ -155,13 +157,17 @@ cd ..
 # NOTES:
 # You may have to repeat this if you're going to be instantiating new .proto files.
 # navigate to the directory which contains the .proto files
-cd tensorflow_serving/aquila_serving_module/
+# clone the aquila_serving_module
+cd tensorflow_serving
+git clone https://github.com/neon-lab/aquila_serving_module.git
+cd aquila_serving_module/
 protoc -I ./ --python_out=. --grpc_out=. --plugin=protoc-gen-grpc=`which grpc_python_plugin` ./aquila_inference.proto
 ​
 # Build TF-Serving
-cd /data/aquila_serving
+cd /mnt/neon/serving
 # build the whole source tree - this will take a bit
 bazel --output_base=/data/.cache/bazel/_bazel_$USER build -c opt --config=cuda tensorflow_serving/...
+bazel build -c opt --config=cuda tensorflow_serving/...
 
 ​
 # # convert tensorflow into a pip repo
@@ -171,12 +177,12 @@ bazel --output_base=/data/.cache/bazel/_bazel_$USER build -c opt --config=cuda t
 # # install it with pip for some reason
 ​
 # this filename may change.
-sudo pip install /tmp/tensorflow_pkg/tensorflow-0.7.1-py2-none-linux_x86_64.whl
+# sudo pip install /tmp/tensorflow_pkg/tensorflow-0.7.1-py2-none-linux_x86_64.whl
 ​
 # # clone inception
 # curl -O http://download.tensorflow.org/models/image/imagenet/inception-v3-2016-03-01.tar.gz
 # tar xzf inception-v3-2016-03-01.tar.gz
-bazel-bin/tensorflow_serving/aquila_serving_module/aquila_export --checkpoint_dir=/data/aquila_snaps_lowreg --export_dir=aquila-export
+bazel-bin/tensorflow_serving/aquila_serving_module/aquila_export --checkpoint_dir=/mnt/neon/aquila_snaps_lowreg --export_dir=/mnt/neon/aquila-export
 ​
 # aquila:
 # real  0m13.621s
@@ -184,6 +190,6 @@ bazel-bin/tensorflow_serving/aquila_serving_module/aquila_export --checkpoint_di
 # sys   0m0.161s
 ​
 # this assumes you have an images directory with a text file called batch in it.
-bazel-bin/tensorflow_serving/aquila_serving_module/aquila_inference --port=9000 aquila-export &> aquila_log &
-bazel-bin/tensorflow_serving/aquila_serving_module/aquila_client --server=localhost:9000 --prep_method=padresize --concurrency=5 --image_list_file=/data/targ/images
+bazel-bin/tensorflow_serving/aquila_serving_module/aquila_inference --port=9000 /mnt/neon/aquila-export &> /mnt/neon/aquila_log
+bazel-bin/tensorflow_serving/aquila_serving_module/aquila_client --server=localhost:9000 --prep_method=padresize --concurrency=22 --image_list_file=<list of images>
 ​
