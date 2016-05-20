@@ -6,7 +6,9 @@ package tensorflow.serving;
 
 message AquilaRequest {
   // Image data as a flattened array of floats
-  repeated bytes image_data = 1;
+  // repeated bytes image_data = 1;
+  bytes image_data = 1;
+  // repeated float image_data = 1;
 };
 
 message AquilaResponse {
