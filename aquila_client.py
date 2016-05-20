@@ -205,7 +205,7 @@ def prep_aquila(image_file):
   # floats on the domain [0, 1). So let's take that into account.
   image = numpy.array(image)
   # image = image / 256.
-  return image
+  return image.astype(numpy.uint8)
 
 
 def do_inference(hostport, concurrency, listfile):
@@ -263,7 +263,7 @@ def do_inference(hostport, concurrency, listfile):
     # this is not as efficient as i feel like it could be,
     # since you have to flatten the array then turn it into
     # a list before you extend the request image_data field.
-    request.image_data.extend(image_array.flatten().tolist())
+    request.image_data = image_array.flatten().tostring()
     with cv:
       while result_status['active'] == concurrency:
         cv.wait()
