@@ -41,7 +41,7 @@ def export():
     # Please refer to Tensorflow inception model for details.
 
     flat_image_size = 3 * FLAGS.image_size ** 2
-    input_data = tf.placeholder(tf.uint8, shape=(None, flat_image_size))
+    input_data = tf.placeholder(tf.int32, shape=(None, flat_image_size))
     # reshape the images appropriately
     images = tf.reshape(input_data, (-1,
                                      FLAGS.image_size,
