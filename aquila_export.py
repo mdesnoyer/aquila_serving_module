@@ -41,12 +41,13 @@ def export():
     # Please refer to Tensorflow inception model for details.
 
     flat_image_size = 3 * FLAGS.image_size ** 2
-    input_data = tf.placeholder(tf.float32, shape=(None, flat_image_size))
+    input_data = tf.placeholder(tf.uint8, shape=(None, flat_image_size))
     # reshape the images appropriately
     images = tf.reshape(input_data, (-1,
                                      FLAGS.image_size,
                                      FLAGS.image_size,
                                      3))
+    images = tf.to_float(images)
 
     # Run inference.
     logits, _ = aquila_model.inference(images, for_training=False, restore_logits=True)
