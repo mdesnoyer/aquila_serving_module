@@ -263,7 +263,7 @@ def do_inference(hostport, concurrency, listfile):
     # this is not as efficient as i feel like it could be,
     # since you have to flatten the array then turn it into
     # a list before you extend the request image_data field.
-    request.image_data.extend(list(image_array.flatten().tostring())
+    request.image_data = image_array.flatten().tostring()
     with cv:
       while result_status['active'] == concurrency:
         cv.wait()
