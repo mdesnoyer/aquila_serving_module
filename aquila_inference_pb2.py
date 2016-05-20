@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='aquila_inference.proto',
   package='tensorflow.serving',
   syntax='proto3',
-  serialized_pb=_b('\n\x16\x61quila_inference.proto\x12\x12tensorflow.serving\"#\n\rAquilaRequest\x12\x12\n\nimage_data\x18\x01 \x03(\x0c\"!\n\x0e\x41quilaResponse\x12\x0f\n\x07valence\x18\x01 \x03(\x02\x32\x61\n\rAquilaService\x12P\n\x07Regress\x12!.tensorflow.serving.AquilaRequest\x1a\".tensorflow.serving.AquilaResponseb\x06proto3')
+  serialized_pb=_b('\n\x16\x61quila_inference.proto\x12\x12tensorflow.serving\"#\n\rAquilaRequest\x12\x12\n\nimage_data\x18\x01 \x01(\x0c\"!\n\x0e\x41quilaResponse\x12\x0f\n\x07valence\x18\x01 \x03(\x02\x32\x61\n\rAquilaService\x12P\n\x07Regress\x12!.tensorflow.serving.AquilaRequest\x1a\".tensorflow.serving.AquilaResponseb\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -35,8 +35,8 @@ _AQUILAREQUEST = _descriptor.Descriptor(
   fields=[
     _descriptor.FieldDescriptor(
       name='image_data', full_name='tensorflow.serving.AquilaRequest.image_data', index=0,
-      number=1, type=12, cpp_type=9, label=3,
-      has_default_value=False, default_value=[],
+      number=1, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
