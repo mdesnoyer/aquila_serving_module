@@ -13,7 +13,14 @@ message AquilaRequest {
 
 message AquilaResponse {
   // Scores of the valence for the images
+  // NOTE: In version of aquila that compute a 
+  // single score for each image, this remains an
+  // array of floats of size one. However, in the
+  // versions of aquila that create distinct
+  // predictions for demographics, it may be the 
+  // abstract features instead!
   repeated float valence = 1;
+  optional string model_version = 2;
 };
 
 service AquilaService {
