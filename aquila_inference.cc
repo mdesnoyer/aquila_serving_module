@@ -61,6 +61,7 @@ namespace {
 const int kImageSize = 299;
 const int kNumChannels = 3;
 const int kImageDataSize = kImageSize * kImageSize * kNumChannels;
+const int kNumAbstFeats = 1024;  // I'm not sure if this is actually necessary, but w/e
 
 class AquilaServiceImpl;
 
@@ -295,7 +296,10 @@ void AquilaServiceImpl::DoRegressInBatch(
   for (int i = 0; i < batch_size; ++i) {
     auto calldata = batch->mutable_task(i)->calldata;
     auto valence = calldata->mutable_response()->mutable_valence();
-    valence->Add(batched_valence.matrix<float>()(i));
+    for (int j = 0; j < batched_valence.dim_size(1); ++j){
+      valence->Add(batched_valence.matrix<float>()(i, j));
+    }
+    calldata->mutable_response()->set_model_version("some test")
     calldata->Finish(Status::OK);
   }
 }
@@ -303,7 +307,7 @@ void AquilaServiceImpl::DoRegressInBatch(
 void HandleRpcs(AquilaServiceImpl* service_impl,
                 AquilaService::AsyncService* service,
                 ServerCompletionQueue* cq) {
-  // Spawn a new CallData instance to serve new clients.
+  // Spawn a new CallData `instance to serve new clients.
   new CallData(service_impl, service, cq);
   void* tag;  // uniquely identifies a request.
   bool ok;
