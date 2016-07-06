@@ -62,6 +62,7 @@ const int kImageSize = 299;
 const int kNumChannels = 3;
 const int kImageDataSize = kImageSize * kImageSize * kNumChannels;
 const int kNumAbstFeats = 1024;  // I'm not sure if this is actually necessary, but w/e
+const string model_version = "TEST_MODEL_VERSION"; // the model version that will be used
 
 class AquilaServiceImpl;
 
@@ -299,7 +300,7 @@ void AquilaServiceImpl::DoRegressInBatch(
     for (int j = 0; j < batched_valence.dim_size(1); ++j){
       valence->Add(batched_valence.matrix<float>()(i, j));
     }
-    calldata->mutable_response()->set_model_version("some test")
+    calldata->mutable_response()->set_model_version(model_version)
     calldata->Finish(Status::OK);
   }
 }
