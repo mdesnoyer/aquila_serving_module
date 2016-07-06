@@ -29,6 +29,8 @@ FLAGS = tf.app.flags.FLAGS
 
 # validate the preprocessing method selected
 WORKING_DIR = os.path.dirname(os.path.realpath(__file__))
+MEAN_CHANNEL_VALS = [[[92.366, 85.133, 81.674]]]
+MEAN_CHANNEL_VALS = np.array(MEAN_CHANNEL_VALS).round().astype(np.uint8)
 
 
 def _prep_image(img, w=299, h=299):
@@ -187,7 +189,9 @@ def _pad_to_asp(img, asp):
     newsize = (ow, nh)
   else:
     return img
-  nimg = Image.new(img.mode, newsize)
+  nimg = np.zeros((newsize[0], newsize[1], 3)).astype(np.uint8)
+  nimg += MEAN_CHANNEL_VALS  # add in the mean channel values to the padding
+  nimg = Image.fromarray(nimg)
   nimg.paste(img, box=(left, upper))
   return nimg
 
@@ -248,7 +252,7 @@ def do_inference(hostport, concurrency, listfile):
         print exception
       else:
         result = result_future.result()
-        inf_res = [filename, result.valence[0]]
+        inf_res = [filename, result.valence]
         inference_results.append(inf_res)
       result_status['done'] += 1
       result_status['active'] -= 1
@@ -289,7 +293,7 @@ def main(_):
       return
     request.image_data = image.extend(image_array.flatten().tolist())
     result = stub.Regress(request, 10.0)  # 10 secs timeout
-    print '%s Inference: %f' % (FLAGS.image, result.valence[0])
+    print '%s Inference: %f' % (FLAGS.image, result.valence)
   elif FLAGS.image_list_file:
     inference_results = do_inference(FLAGS.server,
                                      FLAGS.concurrency,
