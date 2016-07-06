@@ -300,7 +300,7 @@ void AquilaServiceImpl::DoRegressInBatch(
     for (int j = 0; j < batched_valence.dim_size(1); ++j){
       valence->Add(batched_valence.matrix<float>()(i, j));
     }
-    calldata->mutable_response()->set_model_version(model_version)
+    calldata->mutable_response()->set_model_version(model_version);
     calldata->Finish(Status::OK);
   }
 }
