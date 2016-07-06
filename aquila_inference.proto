@@ -20,7 +20,10 @@ message AquilaResponse {
   // predictions for demographics, it may be the 
   // abstract features instead!
   repeated float valence = 1;
-  optional string model_version = 2;
+  // note, we no longer need optional -- in proto3,
+  // fields that are not marked required are optional
+  // by default.
+  string model_version = 2;
 };
 
 service AquilaService {
