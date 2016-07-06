@@ -30,10 +30,10 @@ tf.app.flags.DEFINE_integer('return_logits', False,
                             """Whether or not to provision for returning the logits as well.""")
 FLAGS = tf.app.flags.FLAGS
 
+MEAN_CHANNEL_VALS = [[[[92.366, 85.133, 81.674]]]]
+MEAN_CHANNEL_VALS = np.array(MEAN_CHANNEL_VALS).round().astype(np.float32)
 
-NUM_OUTPUTS = 1
-
-
+channel_mean_tensor = tf.constant(MEAN_CHANNEL_VALS)
 
 def export():
   with tf.Graph().as_default():
@@ -47,10 +47,20 @@ def export():
                                      FLAGS.image_size,
                                      FLAGS.image_size,
                                      3))
-    images = tf.to_float(images)
+
+    # convert the images to float and subtract the channel mean. 
+    images = tf.to_float(images) - channel_mean_tensor
 
     # Run inference.
-    logits, _ = aquila_model.inference(images, for_training=False, restore_logits=True)
+    with tf.variable_scope('testtrain') as varscope:
+      logits, endpoints = aquila_model.inference(images, for_training=False, restore_logits=True)
+
+    dG = tf.get_default_graph()
+
+    # this is very annoying, but we have to do it this way to gain access to the abstract
+    # features, which I didn't assign a sensible or unique name. 
+    abstract_feats = dG.get_tensor_by_name('/testtrain/testing/logits/abst_feats/Relu:0')
+
 
     # Restore variables from training checkpoint.
     variable_averages = tf.train.ExponentialMovingAverage(
@@ -72,9 +82,16 @@ def export():
         print('No checkpoint file found at %s' % FLAGS.checkpoint_dir)
         return
 
+      # perform the PCA
+      # so the output will be 23 x 1024, we need a 1024 x 1024 matrix as the PCA. For now,
+      # we will be using a "dummy" PCA where the weight matrix is just identity.
+      abst_feats_pca = tf.diag(np.ones(abstract_feats.get_shape()[1].value))
+      post_pca_abst_feats = tf.matmul(abstract_feats, abst_feats_pca)
+      
       # Export inference model.
       model_exporter = exporter.Exporter(saver)
-      signature = exporter.regression_signature(input_data, logits)
+
+      signature = exporter.regression_signature(input_data, post_pca_abst_feats)
       model_exporter.init(default_graph_signature=signature)
       model_exporter.export(FLAGS.export_dir, tf.constant(global_step), sess)
       print('Successfully exported model to %s' % FLAGS.export_dir)
