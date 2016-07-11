@@ -59,14 +59,16 @@ def export():
 
     # this is very annoying, but we have to do it this way to gain access to the abstract
     # features, which I didn't assign a sensible or unique name. 
-    abstract_feats = dG.get_tensor_by_name('/testtrain/testing/logits/abst_feats/Relu:0')
+    # abstract_feats = dG.get_tensor_by_name('/testtrain/testing/logits/abst_feats/Relu:0')
 
 
     # Restore variables from training checkpoint.
     variable_averages = tf.train.ExponentialMovingAverage(
         aquila_model.MOVING_AVERAGE_DECAY)
     variables_to_restore = variable_averages.variables_to_restore()
+    print [x.name for x in variables_to_restore]
     saver = tf.train.Saver(variables_to_restore)
+    
     with tf.Session() as sess:
       # Restore variables from training checkpoints.
       ckpt = tf.train.get_checkpoint_state(FLAGS.checkpoint_dir)
