@@ -34,8 +34,6 @@ FLAGS = tf.app.flags.FLAGS
 MEAN_CHANNEL_VALS = [[[[92.366, 85.133, 81.674]]]]
 MEAN_CHANNEL_VALS = np.array(MEAN_CHANNEL_VALS).round().astype(np.float32)
 
-channel_mean_tensor = tf.constant(MEAN_CHANNEL_VALS)
-
 def export():
   with tf.Graph().as_default():
     # Build Aquila model.
@@ -50,7 +48,7 @@ def export():
                                      3))
 
     # convert the images to float and subtract the channel mean. 
-    images = tf.to_float(images) - channel_mean_tensor
+    images = tf.to_float(images) - MEAN_CHANNEL_VALS
 
     # Run inference.
     with tf.variable_scope('testtrain') as varscope:
