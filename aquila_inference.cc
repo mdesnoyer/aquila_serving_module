@@ -273,7 +273,7 @@ void AquilaServiceImpl::DoRegressInBatch(
 
   // Transform protobuf input to inference input tensor.
   tensorflow::Tensor input(tensorflow::DT_UINT8, {batch_size, kImageDataSize});
-  auto dst = input.flat_outer_dims<char>().data();
+  auto dst = input.flat_outer_dims<uint8_t>().data();
   // Assemble the batch into a tensor, copying it from the batch data to
   // the input tensor at location dst repeatedly for each item in the batch
   for (int i = 0; i < batch_size; ++i) {
