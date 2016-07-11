@@ -54,7 +54,8 @@ def export():
 
     # Run inference.
     with tf.variable_scope('testtrain') as varscope:
-      logits, endpoints = aquila_model.inference(images, for_training=False, restore_logits=True)
+      logits, endpoints = aquila_model.inference(images, 
+        for_training=False, restore_logits=True, scope='testing')
 
     dG = tf.get_default_graph()
 
