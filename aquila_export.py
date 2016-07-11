@@ -53,13 +53,13 @@ def export():
     # Run inference.
     with tf.variable_scope('testtrain') as varscope:
       logits, endpoints = aquila_model.inference(images, 
-        for_training=False, restore_logits=True, scope='testing')
+        for_training=False, restore_logits=True)
 
     dG = tf.get_default_graph()
 
     # this is very annoying, but we have to do it this way to gain access to the abstract
     # features, which I didn't assign a sensible or unique name. 
-    # abstract_feats = dG.get_tensor_by_name('/testtrain/testing/logits/abst_feats/Relu:0')
+    abstract_feats = dG.get_tensor_by_name('/testtrain/logits/abst_feats/Relu:0')
 
 
     # Restore variables from training checkpoint.
