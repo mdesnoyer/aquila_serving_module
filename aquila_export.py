@@ -66,7 +66,7 @@ def export():
     variable_averages = tf.train.ExponentialMovingAverage(
         aquila_model.MOVING_AVERAGE_DECAY)
     variables_to_restore = variable_averages.variables_to_restore()
-    print [x.name for x in variables_to_restore]
+    print variables_to_restore
     saver = tf.train.Saver(variables_to_restore)
     
     with tf.Session() as sess:
