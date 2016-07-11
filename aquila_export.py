@@ -8,6 +8,7 @@ NOTE:
 import os.path
 import sys
 
+import numpy as np
 # This is a placeholder for a Google-internal import.
 
 import tensorflow as tf
