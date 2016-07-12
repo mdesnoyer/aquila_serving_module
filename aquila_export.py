@@ -63,10 +63,11 @@ def export():
 
 
     # Restore variables from training checkpoint.
-    variable_averages = tf.train.ExponentialMovingAverage(
-        aquila_model.MOVING_AVERAGE_DECAY)
-    variables_to_restore = variable_averages.variables_to_restore()
-    print variables_to_restore
+    # variable_averages = tf.train.ExponentialMovingAverage(
+    #     aquila_model.MOVING_AVERAGE_DECAY)
+    # variables_to_restore = variable_averages.variables_to_restore()
+    variables_to_restore = tf.get_collection(
+                slim.variables.VARIABLES_TO_RESTORE)
     saver = tf.train.Saver(variables_to_restore)
     
     with tf.Session() as sess:
