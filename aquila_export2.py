@@ -95,7 +95,7 @@ with tf.variable_scope('testtrain') as varscope:
                                   scope='testing',
                                   regularization_strength=WEIGHT_DECAY)
 abst_feats_pca = tf.diag(np.ones(endpoints['abstract_feats'].get_shape()[
-                                     1].value))
+                                     1].value).astype(np.float32))
 post_pca_abst_feats = tf.matmul(endpoints['abstract_feats'], abst_feats_pca)
 init = tf.initialize_all_variables()
 sess = tf.InteractiveSession()
