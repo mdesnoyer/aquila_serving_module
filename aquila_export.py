@@ -59,7 +59,7 @@ def export():
     print [x.name for x in dG.get_operations()]    
     # this is very annoying, but we have to do it this way to gain access to the abstract
     # features, which I didn't assign a sensible or unique name. 
-    abstract_feats = dG.get_tensor_by_name('/testtrain/logits/abst_feats/Relu:0')
+    abstract_feats = dG.get_tensor_by_name('/testtrain/aquila/logits/abst_feats/Relu:0')
 
 
     # Restore variables from training checkpoint.
