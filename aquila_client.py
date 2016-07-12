@@ -293,13 +293,13 @@ def main(_):
       return
     request.image_data = image.extend(image_array.flatten().tolist())
     result = stub.Regress(request, 10.0)  # 10 secs timeout
-    print '%s Inference: %f' % (FLAGS.image, result.valence)
+    print FLAGS.image, 'Inference:', result.valence
   elif FLAGS.image_list_file:
     inference_results = do_inference(FLAGS.server,
                                      FLAGS.concurrency,
                                      FLAGS.image_list_file)
     for filename, valence in inference_results:
-      print '%s Inference: %f' % (filename, valence)
+      print filename, 'Inference:', result.valence
 
 if __name__ == '__main__':
   tf.app.run()
