@@ -16,7 +16,7 @@ import tensorflow as tf
 sys.path.append('/home/ubuntu')
 
 from aquila.net import aquila_model
-from aquila.net import slim
+from aquila.net.slim import slim
 
 from tensorflow_serving.session_bundle import exporter
 
