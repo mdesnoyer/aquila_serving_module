@@ -193,6 +193,7 @@ def _pad_to_asp(img, asp):
   nimg += MEAN_CHANNEL_VALS  # add in the mean channel values to the padding
   nimg = Image.fromarray(nimg)
   nimg.paste(img, box=(left, upper))
+  print 'Image is',nimg.size
   return nimg
 
 

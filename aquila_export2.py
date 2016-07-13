@@ -106,7 +106,8 @@ tf_comps = tf.constant(C.astype(np.float32))
 tf_mean = tf.constant(m.astype(np.float32))
 # pca_feats = tf.matmul((endpoints['abstract_feats'] - tf_mean), tf_comps,
 #                       transpose_b=True)
-pca_feats = endpoints['abstract_feats']
+# pca_feats = endpoints['abstract_feats']
+pca_feats = logits
 init = tf.initialize_all_variables()
 sess = tf.InteractiveSession()
 sess.run(init)
