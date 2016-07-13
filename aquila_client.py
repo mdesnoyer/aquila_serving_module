@@ -301,6 +301,11 @@ def main(_):
                                      FLAGS.image_list_file)
     for filename, valence in inference_results:
       print filename, 'Inference:', valence
+      with open('/tmp/aquila_2_test', 'a') as f:
+        cstr = [filename] + [str(x) for x in list(valence)]
+        cstr = ','.join(cstr)
+        f.write('%s\n', cstr)
+
 
 if __name__ == '__main__':
   tf.app.run()
