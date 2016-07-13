@@ -95,6 +95,7 @@ input_data = tf.placeholder(tf.uint8, shape=(None, flat_image_size))
 images = tf.reshape(input_data, (-1, 299, 299, 3))
 
 images = tf.to_float(images) - MEAN_CHANNEL_VALS
+images /= 256.
 
 with tf.variable_scope('testtrain') as varscope:
     logits, endpoints = inference(images, abs_feats, for_training=False,
