@@ -189,11 +189,10 @@ def _pad_to_asp(img, asp):
     newsize = (ow, nh)
   else:
     return img
-  nimg = np.zeros((newsize[0], newsize[1], 3)).astype(np.uint8)
+  nimg = np.zeros((newsize[1], newsize[0], 3)).astype(np.uint8)
   nimg += MEAN_CHANNEL_VALS  # add in the mean channel values to the padding
   nimg = Image.fromarray(nimg)
   nimg.paste(img, box=(left, upper))
-  print 'Image is',nimg.size
   return nimg
 
 
@@ -261,7 +260,6 @@ def do_inference(hostport, concurrency, listfile):
 
   for imagefn in imagefns:
     image_array = prep_aquila(imagefn)
-    np.save(imagefn + 'arr', image_array)
     if image_array is None:
       num_images -= 1
       continue
