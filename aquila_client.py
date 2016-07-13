@@ -47,8 +47,7 @@ def _prep_image(img, w=299, h=299):
   # pad it to correct aspect ratio (16/9)
   img = _pad_to_asp(img, 16./9)
   # resize the image to 299 x 299
-  img = _resize_to(img, w=314, h=314)
-  img = _center_crop_to(img, w=299, h=299)
+  img = _resize_to(img, w=299, h=299)
   return img
 
 
