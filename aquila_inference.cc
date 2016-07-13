@@ -62,7 +62,7 @@ const int kImageSize = 299;
 const int kNumChannels = 3;
 const int kImageDataSize = kImageSize * kImageSize * kNumChannels;
 const int kNumAbstFeats = 1024;  // I'm not sure if this is actually necessary, but w/e
-const string model_version = "TEST_MODEL_VERSION"; // the model version that will be used
+const string model_version = "20160713-aquilav2"; // the model version that will be used
 
 class AquilaServiceImpl;
 
