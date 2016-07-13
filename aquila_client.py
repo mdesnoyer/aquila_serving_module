@@ -254,7 +254,7 @@ def do_inference(hostport, concurrency, listfile):
         result = result_future.result()
         inf_res = [filename, result.valence]
         inference_results.append(inf_res)
-        print result_future.model_version
+        print result.model_version
       result_status['done'] += 1
       result_status['active'] -= 1
       cv.notify()
