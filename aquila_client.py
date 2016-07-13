@@ -73,8 +73,8 @@ def _resize_to(img, w=None, h=None):
     w = int(h * asp)
   elif h is None:
     h = int(w / asp)
-  return img.resize((w, h), Image.BILINEAR)
-
+  # return img.resize((w, h), Image.BILINEAR)
+  return img.resize((w, h), Image.ANTIALIAS)
 
 def _read_image(imagefn):
   '''
