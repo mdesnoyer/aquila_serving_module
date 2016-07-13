@@ -7,7 +7,7 @@ import sys
 import threading
 
 from PIL import Image
-import numpy as np
+import numpy as np 
 
 # This is a placeholder for a Google-internal import.
 
