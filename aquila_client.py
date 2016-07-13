@@ -304,7 +304,7 @@ def main(_):
       with open('/tmp/aquila_2_test', 'a') as f:
         cstr = [filename] + [str(x) for x in list(valence)]
         cstr = ','.join(cstr)
-        f.write('%s\n', cstr)
+        f.write('%s\n' % cstr)
 
 
 if __name__ == '__main__':
