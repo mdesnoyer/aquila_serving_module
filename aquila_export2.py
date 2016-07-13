@@ -101,8 +101,8 @@ with tf.variable_scope('testtrain') as varscope:
                                   restore_logits=restore_logits,
                                   scope='testing',
                                   regularization_strength=WEIGHT_DECAY)
-tf_comps = tf.constant(tf.float32, C)
-tf_mean = tf.constant(tf.float32, m)
+tf_comps = tf.constant(C.astype(np.float32))
+tf_mean = tf.constant(m.astype(np.float32))
 pca_feats = tf.matmul((endpoints['abstract_feats'] - tf_mean), tf.transpose(tf_comps))
 init = tf.initialize_all_variables()
 sess = tf.InteractiveSession()
