@@ -300,7 +300,7 @@ def main(_):
                                      FLAGS.concurrency,
                                      FLAGS.image_list_file)
     for filename, valence in inference_results:
-      print filename, 'Inference:', result.valence
+      print filename, 'Inference:', valence
 
 if __name__ == '__main__':
   tf.app.run()
