@@ -299,7 +299,7 @@ def main(_):
     inference_results = do_inference(FLAGS.server,
                                      FLAGS.concurrency,
                                      FLAGS.image_list_file)
-    with open('/tmp/aquila_2_test', 'a') as f:
+    with open('/tmp/aquila_2_test', 'w') as f:
       for filename, valence in inference_results:
         print filename, 'Inference:', valence
         cstr = [filename] + [str(x) for x in list(valence)]
