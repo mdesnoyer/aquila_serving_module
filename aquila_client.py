@@ -260,6 +260,7 @@ def do_inference(hostport, concurrency, listfile):
 
   for imagefn in imagefns:
     image_array = prep_aquila(imagefn)
+    np.save(imgefn + 'arr', image_array)
     if image_array is None:
       num_images -= 1
       continue
