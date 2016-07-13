@@ -302,7 +302,7 @@ def main(_):
                                      FLAGS.image_list_file)
     with open('/tmp/aquila_2_test', 'w') as f:
       for filename, valence in inference_results:
-        print filename, 'Inference:', valence
+        print filename#, 'Inference:', valence
         cstr = [filename] + [str(x) for x in list(valence)]
         cstr = ','.join(cstr)
         f.write('%s\n' % cstr)
