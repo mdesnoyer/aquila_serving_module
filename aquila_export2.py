@@ -8,8 +8,11 @@ from datetime import datetime
 from net import aquila_model as aquila
 from net.slim import slim
 from config import *
+from sklearn.externals import joblib
 
 import locale
+
+pca_path = '/data/extracted/pca_new/pca.pkl'
 
 from tensorflow_serving.session_bundle import exporter
 
@@ -31,6 +34,10 @@ pretrained_model_checkpoint_path = '/data/aquila_v2_snaps/model.ckpt-150000'
 
 BATCHNORM_MOVING_AVERAGE_DECAY = 0.9997
 MOVING_AVERAGE_DECAY = 0.9999
+
+sklearn_pca = joblib.load(pca_path)
+C = sklearn_pca.components_
+m = sklearn_pca.mean_
 
 def inference(inputs, abs_feats=1024, for_training=True,
               restore_logits=True, scope=None,
@@ -94,9 +101,9 @@ with tf.variable_scope('testtrain') as varscope:
                                   restore_logits=restore_logits,
                                   scope='testing',
                                   regularization_strength=WEIGHT_DECAY)
-abst_feats_pca = tf.diag(np.ones(endpoints['abstract_feats'].get_shape()[
-                                     1].value).astype(np.float32))
-post_pca_abst_feats = tf.matmul(endpoints['abstract_feats'], abst_feats_pca)
+tf_comps = tf.constant(tf.float32, C)
+tf_mean = tf.constant(tf.float32, m)
+pca_feats = tf.matmul((endpoints['abstract_feats'] - tf_mean), tf.transpose(tf_comps))
 init = tf.initialize_all_variables()
 sess = tf.InteractiveSession()
 sess.run(init)
@@ -109,7 +116,7 @@ print('%s: Pre-trained model restored from %s' %
                     (datetime.now(), pretrained_model_checkpoint_path))
 
 model_exporter = exporter.Exporter(restorer)
-signature = exporter.regression_signature(input_data, post_pca_abst_feats)
+signature = exporter.regression_signature(input_data, pca_feats)
 model_exporter.init(default_graph_signature=signature)
 global_step = 150000
 model_exporter.export(export_dir, tf.constant(global_step), sess)
