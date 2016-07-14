@@ -45,6 +45,18 @@ py_binary(
     ],
 )
 
+py_binary(
+    name = "aquila_export2",
+    srcs = [
+        "aquila_export2.py",
+    ],
+    deps = [
+        #”@aquila//net:aquila_model",
+        "@tf//tensorflow:tensorflow_py",
+        "//tensorflow_serving/session_bundle:exporter",
+    ],
+)
+
 cc_binary(
     name = "aquila_inference",
     srcs = [

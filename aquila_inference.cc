@@ -61,6 +61,8 @@ namespace {
 const int kImageSize = 299;
 const int kNumChannels = 3;
 const int kImageDataSize = kImageSize * kImageSize * kNumChannels;
+const int kNumAbstFeats = 1024;  // I'm not sure if this is actually necessary, but w/e
+const string model_version = "20160713-aquilav2"; // the model version that will be used
 
 class AquilaServiceImpl;
 
@@ -271,7 +273,7 @@ void AquilaServiceImpl::DoRegressInBatch(
 
   // Transform protobuf input to inference input tensor.
   tensorflow::Tensor input(tensorflow::DT_UINT8, {batch_size, kImageDataSize});
-  auto dst = input.flat_outer_dims<char>().data();
+  auto dst = input.flat_outer_dims<uint8_t>().data();
   // Assemble the batch into a tensor, copying it from the batch data to
   // the input tensor at location dst repeatedly for each item in the batch
   for (int i = 0; i < batch_size; ++i) {
@@ -295,7 +297,10 @@ void AquilaServiceImpl::DoRegressInBatch(
   for (int i = 0; i < batch_size; ++i) {
     auto calldata = batch->mutable_task(i)->calldata;
     auto valence = calldata->mutable_response()->mutable_valence();
-    valence->Add(batched_valence.matrix<float>()(i));
+    for (int j = 0; j < batched_valence.dim_size(1); ++j){
+      valence->Add(batched_valence.matrix<float>()(i, j));
+    }
+    calldata->mutable_response()->set_model_version(model_version);
     calldata->Finish(Status::OK);
   }
 }
@@ -303,7 +308,7 @@ void AquilaServiceImpl::DoRegressInBatch(
 void HandleRpcs(AquilaServiceImpl* service_impl,
                 AquilaService::AsyncService* service,
                 ServerCompletionQueue* cq) {
-  // Spawn a new CallData instance to serve new clients.
+  // Spawn a new CallData `instance to serve new clients.
   new CallData(service_impl, service, cq);
   void* tag;  // uniquely identifies a request.
   bool ok;

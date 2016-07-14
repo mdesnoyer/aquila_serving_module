@@ -7,6 +7,7 @@ import sys
 import threading
 
 from PIL import Image
+import numpy as np 
 
 # This is a placeholder for a Google-internal import.
 
@@ -29,6 +30,8 @@ FLAGS = tf.app.flags.FLAGS
 
 # validate the preprocessing method selected
 WORKING_DIR = os.path.dirname(os.path.realpath(__file__))
+MEAN_CHANNEL_VALS = [[[92.366, 85.133, 81.674]]]
+MEAN_CHANNEL_VALS = np.array(MEAN_CHANNEL_VALS).round().astype(np.uint8)
 
 
 def _prep_image(img, w=299, h=299):
@@ -44,8 +47,7 @@ def _prep_image(img, w=299, h=299):
   # pad it to correct aspect ratio (16/9)
   img = _pad_to_asp(img, 16./9)
   # resize the image to 299 x 299
-  img = _resize_to(img, w=314, h=314)
-  img = _center_crop_to(img, w=299, h=299)
+  img = _resize_to(img, w=299, h=299)
   return img
 
 
@@ -71,8 +73,8 @@ def _resize_to(img, w=None, h=None):
     w = int(h * asp)
   elif h is None:
     h = int(w / asp)
-  return img.resize((w, h), Image.BILINEAR)
-
+  # return img.resize((w, h), Image.BILINEAR)
+  return img.resize((w, h), Image.ANTIALIAS)
 
 def _read_image(imagefn):
   '''
@@ -187,7 +189,9 @@ def _pad_to_asp(img, asp):
     newsize = (ow, nh)
   else:
     return img
-  nimg = Image.new(img.mode, newsize)
+  nimg = np.zeros((newsize[1], newsize[0], 3)).astype(np.uint8)
+  nimg += MEAN_CHANNEL_VALS  # add in the mean channel values to the padding
+  nimg = Image.fromarray(nimg)
   nimg.paste(img, box=(left, upper))
   return nimg
 
@@ -248,14 +252,16 @@ def do_inference(hostport, concurrency, listfile):
         print exception
       else:
         result = result_future.result()
-        inf_res = [filename, result.valence[0]]
+        inf_res = [filename, result.valence]
         inference_results.append(inf_res)
+        print result.model_version
       result_status['done'] += 1
       result_status['active'] -= 1
       cv.notify()
 
   for imagefn in imagefns:
     image_array = prep_aquila(imagefn)
+    np.save(imagefn + 'arr', image_array)
     if image_array is None:
       num_images -= 1
       continue
@@ -289,13 +295,18 @@ def main(_):
       return
     request.image_data = image.extend(image_array.flatten().tolist())
     result = stub.Regress(request, 10.0)  # 10 secs timeout
-    print '%s Inference: %f' % (FLAGS.image, result.valence[0])
+    print FLAGS.image, 'Inference:', result.valence
   elif FLAGS.image_list_file:
     inference_results = do_inference(FLAGS.server,
                                      FLAGS.concurrency,
                                      FLAGS.image_list_file)
-    for filename, valence in inference_results:
-      print '%s Inference: %f' % (filename, valence)
+    with open('/tmp/aquila_2_test', 'w') as f:
+      for filename, valence in inference_results:
+        print filename#, 'Inference:', valence
+        cstr = [filename] + [str(x) for x in list(valence)]
+        cstr = ','.join(cstr)
+        f.write('%s\n' % cstr)
+
 
 if __name__ == '__main__':
   tf.app.run()
